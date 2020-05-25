@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf8">
+	<title>Test forms</title>
+	<style>
+		.block {
+			margin: 32px;
+			padding: 32px;
+			border-width: 1px;
+			border-radius: 12px;
+			background-color: lightgrey;
+			font-family: Verdana, Geneva, Tahoma, sans-serif;
+		}
+
+		h1 {
+			font-size: 1.2em;
+		}
+
+		h2 {
+			font-size: 0.9em;
+		}
+
+		.form {
+			padding: 12px;
+			margin: 12px;
+			font-size: 1em;
+			background-color: lightblue;
+		}
+	</style>
+
+	<script>
+
+		function newBlobFromArray(arr) {
+			const ua = new Uint8Array(arr);
+			return new Blob([ua]);
+		}
+
+		function put(url, obj, mime) {
+			let s;
+			if (mime === 'application/json') {
+				s = JSON.stringify(obj);
+			} else if (mime === 'text/plain') {
+				s = obj ? obj.toString() : '';
+			} else {
+				s = obj;
+			}
+
+			const xhr = new XMLHttpRequest();
+			xhr.open('PUT', url, true);
+			xhr.setRequestHeader('Content-Type', mime);
+			xhr.send(s);
+		}
+
+	</script>
+
+</head>
+
+<body>
+
+	<div class="block">
+
+		<h1>GET</h1>
+
+		<div class="form">
+			<h2>url encoded</h2>
+			<form action="/formtest" target="_blank" method="get">
+
+				<label for="idtext">Type something</label><br>
+				<input type="text" id="idtext" name="nametext"><br><br>
+
+				<select name="nameselect">
+					<option>select 1</option>
+					<option>select 2</option>
+					<option>select 3</option>
+				</select><br><br>
+
+				<input type="radio" id="idradio1" name="nameradio" value="valueradio1">
+				<label for="idradio1">Radio 1</label><br>
+
+				<input type="radio" id="idradio2" name="nameradio" value="valueradio2">
+				<label for="idradio2">Radio 2</label><br><br>
+
+				<input type="checkbox" id="idcheckbox" name="namecheckbox">
+				<label for="idcheckbox">Boolean</label><br><br>
+
+				<label for="iddate">Date</label><br>
+				<input type="date" id="iddate" name="namedate"><br><br>
+
+				<label for="idfile">File</label><br>
+				<input type="file" id="idefile" name="namefile"><br><br>
+
+				<input type="submit" id="idsubmit" name="namesubmit" value="Submit">
+
+			</form>
+		</div>
+
+	</div>
+
+	<div class="block">
+
+		<h1>POST</h1>
+
+		<div class="form">
+			<h2>url encoded</h2>
+			<form action="/formtest" target="_blank" method="post" enctype="application/x-www-form-urlencoded">
+
+				<label for="idtext">Type something</label><br>
+				<input type="text" id="idtext" name="nametext"><br><br>
+
+				<select name="nameselect">
+					<option>select 1</option>
+					<option>select 2</option>
+					<option>select 3</option>
+				</select><br><br>
+
+				<input type="radio" id="idradio1" name="nameradio" value="valueradio1">
+				<label for="idradio1">Radio 1</label><br>
+
+				<input type="radio" id="idradio2" name="nameradio" value="valueradio2">
+				<label for="idradio2">Radio 2</label><br><br>
+
+				<input type="checkbox" id="idcheckbox" name="namecheckbox">
+				<label for="idcheckbox">Boolean</label><br><br>
+
+				<label for="iddate">Date</label><br>
+				<input type="date" id="iddate" name="namedate"><br><br>
+
+				<label for="idfile">File</label><br>
+				<input type="file" id="idefile" name="namefile"><br><br>
+
+				<input type="submit" id="idsubmit" name="namesubmit" value="Submit">
+
+			</form>
+		</div>
+
+		<div class="form">
+			<h2>multipart</h2>
+			<form action="/formtest" target="_blank" method="post" enctype="multipart/form-data">
+
+				<label for="idtext">Type something</label><br>
+				<input type="text" id="idtext" name="nametext"><br><br>
+
+				<select name="nameselect">
+					<option>select 1</option>
+					<option>select 2</option>
+					<option>select 3</option>
+				</select><br><br>
+
+				<input type="radio" id="idradio1" name="nameradio" value="valueradio1">
+				<label for="idradio1">Radio 1</label><br>
+
+				<input type="radio" id="idradio2" name="nameradio" value="valueradio2">
+				<label for="idradio2">Radio 2</label><br><br>
+
+				<input type="checkbox" id="idcheckbox" name="namecheckbox">
+				<label for="idcheckbox">Boolean</label><br><br>
+
+				<label for="iddate">Date</label><br>
+				<input type="date" id="iddate" name="namedate"><br><br>
+
+				<label for="idfile">File</label><br>
+				<input type="file" id="idefile" name="namefile"><br><br>
+
+				<input type="submit" id="idsubmit" name="namesubmit" value="Submit">
+
+			</form>
+		</div>
+
+		<div class="form">
+			<h2>plain text</h2>
+			<form action="/formtest" target="_blank" method="post" enctype="text/plain">
+
+				<label for="idtext">Type something</label><br>
+				<input type="text" id="idtext" name="nametext"><br><br>
+
+				<select name="nameselect">
+					<option>select 1</option>
+					<option>select 2</option>
+					<option>select 3</option>
+				</select><br><br>
+
+				<input type="radio" id="idradio1" name="nameradio" value="valueradio1">
+				<label for="idradio1">Radio 1</label><br>
+
+				<input type="radio" id="idradio2" name="nameradio" value="valueradio2">
+				<label for="idradio2">Radio 2</label><br><br>
+
+				<input type="checkbox" id="idcheckbox" name="namecheckbox">
+				<label for="idcheckbox">Boolean</label><br><br>
+
+				<label for="iddate">Date</label><br>
+				<input type="date" id="iddate" name="namedate"><br><br>
+
+				<label for="idfile">File</label><br>
+				<input type="file" id="idefile" name="namefile"><br><br>
+
+				<input type="submit" id="idsubmit" name="namesubmit" value="Submit">
+
+			</form>
+		</div>
+
+	</div>
+
+	<div class="block">
+		<h1>PUT</h1>
+		<button onclick="put('/puttest', {a: 11, b: 'B', c: true}, 'application/json')">JSON</button><br>
+		<button onclick="put('/puttest', 'hello put world', 'text/plain')">TEXT</button><br>
+		<button onclick="put('/puttest', [3, 14, 13])">ARRAY</button><br>
+		<button onclick="put('/puttest', new Uint8Array([3, 14, 13]))">UINT8ARRAY</button><br>
+		<button onclick="put('/puttest', newBlobFromArray([3, 14, 13]))">BLOB</button><br>
+	</div>
+
+</body>
+
+</html>

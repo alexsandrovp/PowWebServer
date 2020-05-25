@@ -1,0 +1,63 @@
+TOPIC
+	about_POW_Certificates
+
+SHORT DESCRIPTION
+	Describes how to create https certificates and bind them to a certain port.
+
+LONG DESCRIPTION
+	In order to serve https requests, a certificate with a private key must be associated
+	with the port the server is listening to.
+
+	To bind a certificate to a port, first you must have a certificate.
+	Certificates are stored in so-called Certificate Stores, and are accessible in Powershell using the cert: provider.
+
+		PS> cd cert:\
+		PS Cert:\> dir -Recurse
+
+	That command will list all stores and certificates available in your machine and for the current user.
+	You can use the cert: provider and the cmdlet Get-ChildItem to select the desired certificate for binding.
+	However, writing filters and where clauses to do that can become too complicated. Because of this,
+	we provide a convenient function Select-Certificate that does that job in a less cumbersome way.
+
+		To learn more:
+		Get-Help Select-Certificate
+
+	The certificate selected for binding must have a private key and have its subject set to the dns name of your website.
+	In case there are no suitable certificates, you have to create one yourself. The easiest way to do that
+	is by creating a self-signed certificate. Powershell provides the cmdlet New-SelfSignedCertificate for that
+	purpose, and altough is it fairly straightforward to use, we also provide a convenient wrapper around it.
+	That is New-HttpsCertificate, and it already selects the correct key store, key algorithm and key length for your certificate.
+
+		To learn more:
+		Get-Help New-HttpsCertificate
+		Get-Help New-SelfSignedCertificate
+
+	The certificate created by New-HttpsCertificate contains an unprotected private key. Remember only to use it for
+	test purposes inside of trusted networks.
+
+	After you have created/selected the certificate, it is time to bind it to the desired port.
+	There are two parameters important for this task. One is the port itself, and it must be the port
+	that your server will listen to. The other is the ip address corresponding to the interface that will
+	receive the requests for your server to respond. It can be either a physical ip address, or 0.0.0.0,
+	meaning that requests from all interfaces are valid.
+
+	The binding can be done using the windows tool 'netsh', but we provide some convenient cmdlets for that task.
+	First there is New-HttpsCertificateBinding, used to create the binding. Without parameters, it binds to 0.0.0.0:8443,
+	that port being the default https port of the POW server. It takes a mandatory parameter 'Certificate', which can be
+	the output from Select-Certificate and cand be fed in using powershell's pipeline.
+
+	Then, there is Remove-HttpsCertificateBinding, used to remove a certaing binding. To remove a binding,
+	the only information needed are the ip and port.
+
+	Last, there is Get-HttpsCertificateBinding, used to check if a binding to the desired ip:port already exists.
+
+		To learn more:
+		Get-Help New-HttpsCertificateBinding
+		Get-Help Get-HttpsCertificateBinding
+		Get-Help Remove-HttpsCertificateBinding
+
+SEE ALSO
+	https://docs.microsoft.com/en-us/dotnet/framework/wcf/feature-details/how-to-configure-a-port-with-an-ssl-certificate
+
+
+

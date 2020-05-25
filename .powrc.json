@@ -1,0 +1,11 @@
+{
+	"quitUrl": "",
+	"maxPayloadSize": 0,
+	"virtualPaths": {},
+	"redirection": {},
+	"psScripts": {
+		"GET": {},
+		"PUT": {},
+		"POST": {}
+	}
+}

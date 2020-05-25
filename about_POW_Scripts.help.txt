@@ -1,0 +1,146 @@
+TOPIC
+	about_POW_Scripts
+
+SHORT DESCRIPTION
+	Describes how to create ps1 script to serve dynamic content.
+
+LONG DESCRIPTION
+	The POW web server was created with the primary goal of serving static content.
+	However, rudimentary support to dynamic content can be achieved by configuring
+	psScripts in the server config file. See help about_POW_Configuration for more information
+	on configuring the script paths.
+
+	Whenever an url is determined to be associated with a ps1 script, the server will dump
+	the request payload in a temporary folder. It then calls the script and passes
+	three parameters to it.
+
+	Parameter -request
+
+	The first parameter is called '$request' and is the .NET request object.
+	In this object you can find everything about the request made by the client,
+	except for the input stream, which has already been read and dumped to the
+	request folder. For more information about the request object, see
+	https://docs.microsoft.com/en-us/dotnet/api/system.net.httplistenerrequest
+
+	Parameter -requestFolder
+
+	The second parameter is the request folder where the payload was dumped.
+	The payload file name is simply 'payload'.
+
+	If the request contains query parameters in the url, there will be also a file
+	called 'query', containing all the key:value pairs in the url, one pair per line
+	in the format
+		key: value
+
+	If the http method of the request is POST and the $request.ContentType is
+	'application/x-www-form-urlencoded', there will be another file called 'query_fue'
+	containing the contents of the payload file transformed in the same key:value pair
+	format of the 'query' file.
+
+	If the http method of the request is POST and the $request.ContentType is
+	'multipart/form-data', there will be a subfolder called 'multipart'. This subfolder
+	contains subfolders of its own, called 'part-<index>', one for each part decoded from
+	the payload. Each 'part' subfolder contains one file for each header parsed for that
+	part, and a data file with the data contents, also parsed from that part's section
+	of the payload file. For example, if the request sumbited a multipart form with
+	one file input, there would be a folder called 'part-0' with at least three files in it:
+
+		a. 'data', containing the uploaded file.
+		b. 'Content-Type', containing the data mime type.
+		c. 'Content-Disposition', containing form data like the html <input> element name
+			and the original file name of the uploaded file.
+
+	Parameter -responseObject
+
+	This parameter contains an object that MUST be returned by the script. If it fails to do so,
+	an HTTP status 500 (internal server error) will be returned to the client. After processing the request,
+	the script should set the response object properties according to its needs. POW expects these
+	properties in the responseObject:
+
+		a. $responseObject.HttpStatus
+		   Type: [int]
+		   Set it to the http status that must be returned to the client, for example
+
+				$responseObject.HttpStatus = [int][Net.HttpStatusCode]::OK
+
+		b. $responseObject.Error (optional)
+			Type: [string]
+			If an error has occurred, set the HttpStatus to an appropriate value and
+			set this string to the error description. It will be assigned to the
+			http response 'StatusDescription' property.
+
+		c. $responseObject.StatusDescription (optional)
+			Type: [string]
+			This string will be assigned to the http response 'StatusDescription' property
+			in case no Error string has been specified.
+
+		d. $responseObject.Buffer (optional)
+			Type: [byte[]]
+			Set it to the byte buffer of the response content, if any. For example
+
+				$responseObject.Buffer = [Text.Encoding]::UTF8.GetBytes('success')
+
+		e. $responseObject.Encoding (optional)
+			Type: [Text.Encoding]
+			Set it to the encoding used to encode the buffer bytes, for example
+
+				$responseObject.Encoding = [Text.Encoding]::UTF8
+
+			You can also set it to a string representation of the encoding
+			(anything that can be parsed by [Text.Encoding]::GetEncoding('...'))
+
+				$responseObject.Encoding = 'iso-8859-1'
+
+		f. $responseObject.Mime (optional)
+			Type: [string]
+			Set it to the buffer's content type (mime). For example
+
+				$responseObject.Mime = 'application/json'
+
+	SCRIPT TEMPLATE
+
+	All scripts must start with
+
+		param(
+			$request,
+			$requestFolder,
+			$responseObject
+		)
+
+	And end with
+
+		return $responseObject
+
+	After control is returned to the POW server, the request folder will be erased.
+	Thus, do not keep a locking reference to that folder or anything in it.
+
+	Do not return multiple values (multiple calls to Write-Output).
+	Powershell allows for implicit calls to Write-Output when a statement has a return value and
+	is not assigned to anything. For example, writing a string on a line by its own:
+
+		'this is some text'
+
+	Is actually the same as
+
+		Write-Output 'this is some text'
+
+	POW would try to use that as the script response and an error would be generated.
+	To avoid this problem write all your code inside a block like this:
+
+		% {
+			'your code here'
+		} | Out-Null
+
+	And return the $responseObject after that block
+
+	There is a cmdlet that generates a script template following all these guidelines.
+	You should use it to create new scripts, instead of writing scripts from scratch.
+
+		New-PowScript -OutputFolder d:\html -Name myPostHandler.ps1
+
+SEE ALSO
+	about_POW_Configuration
+	https://docs.microsoft.com/en-us/dotnet/api/system.net.httplistenerrequest
+
+
+

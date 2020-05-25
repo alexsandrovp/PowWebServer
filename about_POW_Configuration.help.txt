@@ -1,0 +1,113 @@
+TOPIC
+	about_POW_Configuration
+
+SHORT DESCRIPTION
+	Describes the semantics of the .powrc.json file.
+
+
+LONG DESCRIPTION
+	You can create a file called .powrc.json inside the folder being served
+	by the POW web server. This file follows JSON syntax and is used to
+	configure advanced parameters of the server.
+
+	For a description of the JSON syntax, see:
+
+	https://en.wikipedia.org/wiki/JSON
+	http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
+
+
+
+	There is support for the following properties:
+
+		{
+			"quitUrl": "",
+			"maxPayloadSize": 0,
+			"virtualPaths": {},
+			"redirection": {},
+			"psScripts": {
+				"GET": {},
+				"PUT": {},
+				"POST": {}
+			}
+		}
+
+
+	1.	Use the property "quitUrl" to configure the path of the the request that terminates the server.
+		Always start this property value with '/'. By default, its value is "/quit".
+
+		"quitUrl": "/quit"
+
+
+	2.	Use the property "maxPayloadSize" to configure the maximum allowed payload size in bytes.
+		If not present, the default is 5 Mb. If set to an invalid value, the default is 0.
+
+
+	3.	Use the property "virtualPaths" to configure paths to resources that are not in the served folder.
+
+		"virtualPaths": {
+			"/virtual1": "D:\\siteB\\abc",
+			"/virtual2/help.txt": "D:/siteB/readme.txt",
+		}
+
+		Note that in this example:
+
+		a.	All request starting with '/virtual1/' will cause the resource to be searched at 'D:\siteB\abc'.
+			For example, requesting '/virtual1/logo.jpg' will retrieve 'D:\siteB\abc\logo.jpg'.
+			This is an example of folder virtualization.
+		b.	The second pair is an example of file virtualization. In this case, requests to, for example,
+			'/virtual2/something.else' will NOT cause 'D:\siteB\something.else' to be retrieved.
+		c.	JSON requires backslashes '\' to be escaped. For this reason, it is recommended to separate
+			paths with forward slashes '/'. Powershell can understand it just fine.
+		d.	Always start the urls with '/'
+
+
+	4.	Use the property "redirection" to define url redirections. Unlike virtual paths,
+		here you are not mapping an url to a physical disk path, but rather two urls.
+
+		"redirection": {
+			"/deprecated": "/replacement"
+		}
+
+		If a client requests, for example, a resource at "/deprecated/feature.html",
+		the server will respond to the client to redirect to "/replacement/feature.html".
+		The client then makes a new request for "/replacement/feature.html".
+
+
+	5.	Use the property "psScripts" to associate urls with ps1 scripts, to serve dynamic content.
+		Altough this server is primarily meant to serve static content, there is rudimentary support
+		for dynamic content and POST/PUT requests through the use of ps1 script files.
+
+		"psScripts": {
+			"GET": {
+				"/mydynget": "scripts/mydynget.ps1",
+				"/helloworld": "/scripts/helloWorld.ps1"
+			},
+			"PUT": {
+				"/putthis": "./scripts/put.ps1"
+			},
+			"POST": {
+				"/postthis": "d:/siteB/scripts/post.ps1"
+			}
+		}
+
+		In this example, both urls associated with the GET method, and the url associated
+		with the PUT method are pointing to scripts relative to the served folder. The script
+		associated with the POST url points to an absolute file path in the server machine.
+		To learn more about scripts, see the topic about_POW_Scripts.
+
+
+
+	When searching for a resource the following precedence is obeyed:
+
+	1. quitUrl
+	2. script associations
+	3. virtual paths
+	4. redirections
+	5. files in the served folder
+
+
+SEE ALSO
+	about_POW_Scripts
+
+
+
